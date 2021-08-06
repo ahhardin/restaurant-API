@@ -5,8 +5,16 @@ verify_ssl = true
 
 [dev-packages]
 
-[packages]
-flask="~=2.0"  
+[packages] 
+arrow="~=1.1"
+click="~=8.0"
+Flask="~=2.0"
+itsdangerous="~=2.0"
+Jinja2="~=3.0"
+MarkupSafe="~=2.0"
+python-dateutil="~=2.8"
+six="~=1.16"
+Werkzeug="~=2.0.1"
 
 [requires]
 python_version = "3.8"
