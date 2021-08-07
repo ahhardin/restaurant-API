@@ -1,26 +1,29 @@
 # app.py
+
+# third party
+import arrow
 from flask import Flask, request, jsonify
-from data import formatted_data
-from date_util import parser
+
+# internal
+from data import formatted_data, ordered_day_abbreviations
 
 app = Flask(__name__)
 
-app.config.update(
-    FLASK_ENV='development'
-)
-
-app.debug=True
-
 @app.route("/open-restaurants", methods=['GET'])
 def get_open_restaurants():
-    print(request.args.get('date'))
-    return jsonify(formatted_data)
+    date = arrow.get(request.args.get('date'))
+    open_restaurants = []
+    weekday = ordered_day_abbreviations[date.weekday()]
+    time = date.time()
+    for key, val in formatted_data.items():
+        time_intervals = val.get(weekday)
+        if time_intervals:
+            for time_interval in time_intervals:
+                if time > time_interval[0] and time < time_interval[1]:
+                    open_restaurants.append(key)
+            
+    return jsonify(open_restaurants)
 
-# @app.post("/countries")
-# def add_country():
-#     if request.is_json:
-#         country = request.get_json()
-#         country["id"] = _find_next_id()
-#         countries.append(country)
-#         return country, 201
-#     return {"error": "Request must be JSON"}, 415
+@app.route("/formatted_data", methods=['GET'])
+def get_formatted_data():
+    return jsonify(formatted_data)
