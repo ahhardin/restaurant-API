@@ -21,6 +21,7 @@ def get_open_restaurants():
     open_restaurants = get_open_restaurants_by_date(date)
     return jsonify(open_restaurants)
 
+## undocumented route for debugging
 @app.route("/formatted-data", methods=['GET'])
 def get_formatted_data():
     jsonObj = json.dumps(formatted_data, default=str)
