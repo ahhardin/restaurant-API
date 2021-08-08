@@ -22,7 +22,7 @@ time_pattern = "((?:(?<!:|[0-9])[0-9]{1,2}\s(?:am|pm))|(?:(?<!:|[0-9])[0-9]{1,2}
 #
 
 def check_after_midnight(interval):
-    # if a day is after midnight, append that time interval onto the following day
+    # if a day has hours that wrap into after midnight, append that time interval onto the following day
     # assume any hours earlier than time_cutoff should be wrapped to the next day
     # will return a tuple of (today_interval, tomorrow_interval) where tomorrow_interval may be None
     if interval[1] < time_cutoff:
@@ -35,7 +35,7 @@ def add_hours(restaurant, day, hours):
     if restaurant.get(day):
         restaurant[day].extend(hours)
     else:
-        restaurant[day] = [h for h in hours] # copy so we don't mutate later
+        restaurant[day] = [h for h in hours] # copy so we don't mutate original object when extending
     return restaurant
 
 def get_tomorrow(day):
@@ -72,6 +72,7 @@ with open('data.csv') as data:
         open_hours = line[1]
         # unpack hours into days with time intervals in an array
         intervals = [str(h.lower().strip()) for h in open_hours.split("/")]
+        # initialize the day as a dict
         formatted_data[name] = {}
         
         for interval in intervals:
@@ -81,7 +82,7 @@ with open('data.csv') as data:
             hours = []
             tomorrow_hours = []
             for h in hour_intervals:
-                # store intervals in datetime.time objects
+                # store intervals in datetime.time objects - each could be one of two formats
                 try: start = datetime.datetime.time(datetime.datetime.strptime(h[0], '%I:%M %p'))
                 except: start = datetime.datetime.time(datetime.datetime.strptime(h[0], '%I %p'))
                 try: end = datetime.datetime.time(datetime.datetime.strptime(h[1], '%I:%M %p'))
@@ -95,20 +96,24 @@ with open('data.csv') as data:
             
             # unpack days
             days = []
-            # look for day intervals (sepearated by a dash), and fill in missing weekdays
+            # if match for multi-day pattern, assign all days in interval
             day_intervals = re.findall(day_interval_pattern, interval)
             if day_intervals:
                 for int in day_intervals:
+                    # day at the start of the interval
                     idx_start = ordered_day_abbreviations.index(int[0])
+                    # day at the end of the interval
                     idx_end = ordered_day_abbreviations.index(int[1])
+                    # add all the days in the interval inclusive of start and end
                     days += [d for idx, d in enumerate(ordered_day_abbreviations) if idx >= idx_start and idx <= idx_end]
 
-            # if no dash, assign single day
+            # if match for single day pattern, assign single day
             single_days = re.findall(single_day_pattern, interval)
             if single_days:
                 for day in single_days:
                     days += [day]
             
+            # for each day add the hours for that day and (if applicable) those that wrap to the following day      
             for day in days:
                 formatted_data[name] = add_hours(formatted_data[name], day, hours)
                 if tomorrow_hours:

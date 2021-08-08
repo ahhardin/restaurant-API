@@ -48,6 +48,15 @@ class TestKnownHours(unittest.TestCase):
         actual_open_restaurants = set(["Tupelo Honey", "Dashi", "Mez Mexican"])
         self.assertTrue(open_restaurants == actual_open_restaurants)
 
+    def test_not_open_on_monday(self):
+        closed_restaurants = set()
+        for name, days in formatted_data.items():
+            if not days.get('mon'):
+                closed_restaurants.add(name)
+            
+        actual_closed_restaurants = set(["Garland", ])
+        self.assertTrue(closed_restaurants == actual_closed_restaurants)
+
 
 if __name__ == '__main__':
     unittest.main()

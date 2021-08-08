@@ -24,5 +24,6 @@ def get_open_restaurants():
 ## undocumented route for debugging
 @app.route("/formatted-data", methods=['GET'])
 def get_formatted_data():
+    # necessary to cast time objects as strings
     jsonObj = json.dumps(formatted_data, default=str)
     return json.loads(jsonObj)
