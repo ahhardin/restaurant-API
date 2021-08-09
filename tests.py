@@ -17,10 +17,10 @@ class TestDataFormat(unittest.TestCase):
         # ensure all the time intervals are well-formed (type datetime.time and open time precedes the close time)
         for (r,d) in formatted_data.items():
             for intervals in d.values():
-                # assert that each day has at least one time interval
+                # assert that each day has at least one time interval (if no intervals day key should not exist)
                 self.assertTrue(len(intervals) > 0)
                 for time in intervals:
-                    # assert all the times are type datetime and the starting time is less than the ending time
+                    # assert all the times are type datetime.time and the starting time is less than the ending time
                     self.assertTrue(isinstance(time[0], datetime.time))
                     self.assertTrue(isinstance(time[1], datetime.time))
                     self.assertTrue(time[0] <= time[1])
